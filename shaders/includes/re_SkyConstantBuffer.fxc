@@ -1,0 +1,5 @@
+cbuffer SkyConstantBuffer_t : register(b1)
+{
+    float4x3 g_matSkyOsToWs : packoffset(c0);
+    float4x3 g_matSkyWsToOs : packoffset(c3);
+};

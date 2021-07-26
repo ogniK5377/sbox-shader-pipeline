@@ -1,0 +1,30 @@
+cbuffer _Globals : register(b0)
+{
+    float4 g_vInvCMTDims : packoffset(c0);
+
+    float g_flDirectionalLightmapStrength : packoffset(c1);
+    float g_flDirectionalLightmapMinZ;
+    float4 g_vPositionKeyFramesInvDim : packoffset(c2);
+    float g_flFrame : packoffset(c3);
+    bool g_bWrinkleOverride;
+    float g_flWrinkleOverride;
+    float2 g_vWrinkleScaleOffset : packoffset(c4);
+    float2 g_vDetailTexCoordScale;
+    float g_flDetailTexCoordRotation : packoffset(c5);
+    float2 g_vDetailTexCoordOffset;
+    float4 g_vDetailTexCoordXform : packoffset(c6);
+    float g_flDetailNormalStrength : packoffset(c7);
+    float4 g_vDetailNormalStrengthOffsetScale : packoffset(c8);
+    float2 g_vTexCoordScale : packoffset(c9);
+    float2 g_vTexCoordOffset;
+    float2 g_vTexCoordScrollSpeed : packoffset(c10);
+    int g_nScaleTexCoordUByModelScaleAxis;
+    int g_nScaleTexCoordVByModelScaleAxis;
+    bool g_bTexCoordScaleByModel : packoffset(c11);
+    float4 g_vTexCoordScaleByModelU : packoffset(c12);
+    float4 g_vTexCoordScaleByModelV : packoffset(c13);
+    float3 g_vColorTint : packoffset(c14);
+    float g_flModelTintAmount;
+    float g_flFadeExponent : packoffset(c15);
+    bool g_bUseSecondaryUvForDetailTexture;
+};

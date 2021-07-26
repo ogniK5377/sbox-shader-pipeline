@@ -1,0 +1,13 @@
+cbuffer SunLightShaderParamsCB: register(b2)
+{
+    float4 g_vSunLightColor : packoffset(c0);
+    float3 g_vSunLightDir : packoffset(c1);
+    float g_flSunNormalizedRadius;
+    float4 g_vSunTexParams : packoffset(c2);
+    float4 g_vSunTexParams2 : packoffset(c3);
+    float4 g_vSunTexParams3 : packoffset(c4);
+    float4x4 g_matWorldToShadowTexMatrices : packoffset(c5);
+    float4 g_vCascadeAtlasUVOffsets[4] : packoffset(c21);
+    float4 g_flCascadeViewShadowBiasScales[4] : packoffset(c25);
+    float g_nSunShadowCascadeCount : packoffset(c29);
+};

@@ -1,0 +1,97 @@
+/*
+    Sets the current render state, valid render states as follows:
+    FillMode: WIREFRAME, SOLID
+    CullMode: NONE, BACK, FRONT
+    DepthBias
+    DepthBiasClamp
+    SlopeScaleDepthBias
+    DepthClipEnable
+    MultisampleEnable
+    SampleMask
+    DepthEnable
+    DepthWriteEnable
+    DepthFunc: NEVER, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL, GREATER_EQUAL, ALWAYS
+    StencilEnable
+    StencilReadMask
+    StencilWriteMask
+    StencilFailOp: KEEP, ZERO, REPLACE, INCR_SAT, DECR_SAT, INVERT, INCR, DECR
+    StencilDepthFailOp: KEEP, ZERO, REPLACE, INCR_SAT, DECR_SAT, INVERT, INCR, DECR
+    StencilPassOp: KEEP, ZERO, REPLACE, INCR_SAT, DECR_SAT, INVERT, INCR, DECR
+    StencilFunc: NEVER, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL, GREATER_EQUAL, ALWAYS
+    BackStencilFailOp: KEEP, ZERO, REPLACE, INCR_SAT, DECR_SAT, INVERT, INCR, DECR
+    BackStencilDepthFailOp: KEEP, ZERO, REPLACE, INCR_SAT, DECR_SAT, INVERT, INCR, DECR
+    BackStencilPassOp: KEEP, ZERO, REPLACE, INCR_SAT, DECR_SAT, INVERT, INCR, DECR
+    BackStencilFunc: NEVER, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL, GREATER_EQUAL, ALWAYS
+    StencilRef
+    AlphaToCoverageEnable
+    BlendEnable
+    IndependentBlendEnable
+    SrcBlend: ZERO, ONE, SRC_COLOR, INV_SRC_COLOR, SRC_ALPHA, INV_SRC_ALPHA, DEST_ALPHA, INV_DEST_ALPHA, DEST_COLOR, INV_DEST_COLOR, SRC_ALPHA_SAT, BLEND_FACTOR, SRC1_COLOR, INV_SRC1_COLOR, SRC1_ALPHA, INV_SRC1_ALPHA
+    DstBlend: ZERO, ONE, SRC_COLOR, INV_SRC_COLOR, SRC_ALPHA, INV_SRC_ALPHA, DEST_ALPHA, INV_DEST_ALPHA, DEST_COLOR, INV_DEST_COLOR, SRC_ALPHA_SAT, BLEND_FACTOR, SRC1_COLOR, INV_SRC1_COLOR, SRC1_ALPHA, INV_SRC1_ALPHA
+    BlendOp: ADD, SUBTRACT, REV_SUBTRACT, MIN, MAX
+    SrcBlendAlpha: ZERO, ONE, SRC_COLOR, INV_SRC_COLOR, SRC_ALPHA, INV_SRC_ALPHA, DEST_ALPHA, INV_DEST_ALPHA, DEST_COLOR, INV_DEST_COLOR, SRC_ALPHA_SAT, BLEND_FACTOR, SRC1_COLOR, INV_SRC1_COLOR, SRC1_ALPHA, INV_SRC1_ALPHA
+    DstBlendAlpha: ZERO, ONE, SRC_COLOR, INV_SRC_COLOR, SRC_ALPHA, INV_SRC_ALPHA, DEST_ALPHA, INV_DEST_ALPHA, DEST_COLOR, INV_DEST_COLOR, SRC_ALPHA_SAT, BLEND_FACTOR, SRC1_COLOR, INV_SRC1_COLOR, SRC1_ALPHA, INV_SRC1_ALPHA
+    BlendOpAlpha: ADD, SUBTRACT, REV_SUBTRACT, MIN, MAX
+    ColorWriteEnable0: false, R, G, B, A, RG, RB, RA, GB, GA, BA, GBA, RBA, RGA, RGB, RGBA
+    ColorWriteEnable1: false, R, G, B, A, RG, RB, RA, GB, GA, BA, GBA, RBA, RGA, RGB, RGBA
+    ColorWriteEnable2: false, R, G, B, A, RG, RB, RA, GB, GA, BA, GBA, RBA, RGA, RGB, RGBA
+    ColorWriteEnable3: false, R, G, B, A, RG, RB, RA, GB, GA, BA, GBA, RBA, RGA, RGB, RGBA
+    SrgbWriteEnable0
+    SrgbWriteEnable1
+    SrgbWriteEnable2
+    SrgbWriteEnable3
+    BlendFactor
+    HighPrecisionBlendEnable
+    AlphaTestEnable
+    AlphaTestRef
+    AlphaTestFunc: NEVER, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL, GREATER_EQUAL, ALWAYS
+*/
+#define RenderState( stateType, stateArg ) string g_renderState_##stateType < string arg1 = #stateArg; >
+#define SamplerState( samplerState, samplerArg ) string SamplerState_##samplerState< string arg1 = #samplerArg; >
+#define Semantic( name ) string semantic = #name
+
+#define Source( curArgument ) string source = #curArgument
+#define SourceArg( curArgument ) string attribute = #curArgument
+#define Attribute( curArgument) string attribute=curArgument
+#define Expression( curArgument ) string expression=curArgument
+#define UiGroup( uiGroup ) string uigroup = uiGroup
+
+/* 
+    Valid UI groups:
+    Unknown
+    Slider
+    Color
+    Texture
+    VectorText
+    CheckBox
+*/
+#define UiType( uiType ) string uitype = #uiType
+#define UiStep( uiStep ) float uistep = #uiStep
+
+#define _Attribute( attributeType, baseName, isExposed ) string g_ ##attributeType ##Attr_##baseName<string value=#baseName;>
+#define BoolAttribute( baseName, isExposed ) _Attribute( bool, baseName, isExposed )
+#define IntAttribute( baseName, isExposed ) _Attribute( int, baseName, isExposed )
+#define FloatAttribute( baseName, isExposed ) _Attribute( float, baseName, isExposed )
+#define Float2Attribute( baseName, isExposed ) _Attribute( float2, baseName, isExposed )
+#define Float3Attribute( baseName, isExposed ) _Attribute( float3, baseName, isExposed )
+#define Float4Attribute( baseName, isExposed ) _Attribute( float4, baseName, isExposed )
+#define ExposeTextureAttribute( baseName, isExposed ) _Attribute( tex, baseName, isExposed )
+
+#define Default( value ) float default1=value
+#define Default2( value1, value2 ) float default2[2]={value1, value2}
+#define Default3( value1, value2, value3 ) float default3[3]={value1, value2, value3}
+#define Default4( value1, value2, value3, value4 ) float default4[4]={value1, value2, value3, value4}
+
+#define Range( rangeMin, rangeMax ) float range1[2]={rangeMin, rangeMax}
+#define Range2( rangeMin1, rangeMax1, rangeMin2, rangeMax2 ) float range2[4]={rangeMin1, rangeMin2, rangeMax1, rangeMax2}
+#define Range3( rangeMin1, rangeMax1, rangeMin2, rangeMax2, rangeMin3, rangeMax3 ) float range3[6]={rangeMin1, rangeMin2, rangeMin3, rangeMax1, rangeMax2, rangeMax3}
+
+#define TexColorSpace( colorSpace ) string inputColorSpace = #colorSpace
+#define TexSpacePrecision( texPrecision ) string minPrecision = #texPrecision
+#define TexOutputFormat( argOutputFormat ) string outputFormat = argOutputFormat
+
+#define Channel( channelArgs, mipArgs, outputColorSpaceArgs ) string channelMipAlgorithm_##channelArgs = ##mipArgs; string channelOutputColorSpace_##channelArgs = #outputColorSpaceArgs
+#define CreateInputTexture2D( texName, texInputColorSpace, texMinPrecision, texAlgorithm, texFileExt, texUiGroup, texDefault ) \
+    string g_inputTexture2D_##texName<string  inputColorSpace = #texInputColorSpace; string minPrecision = #texMinPrecision; string imageAlgorithm = texAlgorithm; string fileExt =  texFileExt; string uigroup = texUiGroup; texDefault; >
+
+#define TextureAttribute( baseName, value ) string g_texAttr_##baseName<string value = #value; >

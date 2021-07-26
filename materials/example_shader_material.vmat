@@ -1,0 +1,18 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "example_shader.vfx"
+
+	//---- Category name ----
+	F_ENABLE_DEPTH 1
+
+	//---- Extra Category ----
+	CustomColor "[1.000000 0.000000 0.000000 1.000000]"
+	UseVertexColor "0"
+
+	//---- Wobbling Category! ----
+	WobbleAmount "2.000"
+	WobbleOurMesh "1"
+	WobbleTime "20.000"
+}

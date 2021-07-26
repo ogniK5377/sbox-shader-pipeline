@@ -1,0 +1,5 @@
+float4 vPosition : SV_Position;
+float4 vBaseUvs0 : TEXCOORD0;
+float4 vUv1 : TEXCOORD1;
+float4 vScrollingCoordinates : TEXCOORD2;
+float4 vVertexColor : TEXCOORD4;

@@ -1,0 +1,136 @@
+HEADER
+{
+    DevShader = true; // Specifies if this shader is a development shader or not
+    CompileTargets = ( IS_SM_50 && ( PC || VULKAN ) ); // Platforms to compile to
+    Description = "Our basic custom shader!"; // The description of our shader(this will come up in the material browser)
+    Version = 1;
+}
+
+MODES
+{
+    VrForward(); // The shading mode we'll use. Typically you'll keep this for forward rendering
+}
+
+FEATURES
+{
+    // Features MUST begin with F_
+    Feature(F_ENABLE_DEPTH, 0..1, "Category name"); // Specify a feature which is a bool
+    Feature(F_A_CHECKBOX_FEATURE, 0..3(0="Checkbox 1", 1="Checkbox 2", 2="Checkbox 3", 3="Checkbox 4"), "Category name"); // Create a feature set of checkboxes
+
+    Feature(F_OPTION_1, 0..1, "Category name");
+    Feature(F_OPTION_2, 0..1, "Category name");
+    FeatureRule(Allow1(F_OPTION_1, F_OPTION_2), "Hover over hint"); // Setup a feature rule where we can only select either OPTION_1 or OPTION_2 
+}
+
+COMMON
+{
+    // Definitions placed in here will be accessed to all defined shdaer types below.
+    // Typically you'd define your pixel shader input here as well as all the constbuffers you'll be using.
+
+    // Required by re_system & re_vr_shared_standard_vs_code
+    #include "includes/re_Globals.fxc"
+    #include "includes/re_PerViewConstantBuffer.fxc"
+    #include "includes/re_PerViewConstantBufferVR.fxc"
+
+    #include "includes/re_system.fxc"
+
+    // Input buffer to our pixel shader. The vertex shader will be outputting this struct too!
+    struct PsInput
+    {
+        #include "includes/re_vr_shared_standard_ps_input.fxc"
+    };
+
+    struct VsInput
+    {
+        #include "includes/re_vr_shared_standard_vs_input.fxc"
+
+        float4 vColor : COLOR0< Semantic(Color); >; // Fetch another input for our current vertex color!
+    };
+}
+
+VS
+{
+    // Define our vertex shader here.
+
+    // Create a new attribute called "Wobble Our Mesh" and store it in the "Wobbling Category!" as a checkbox which is checked by default!
+    bool WobbleOurMesh< UiGroup("Wobbling Category!"); UiType(CheckBox); Default(1); >;
+
+    // Actually expose our boolean to the material editor
+    BoolAttribute( WobbleOurMesh, true ); 
+
+    float WobbleAmount< UiGroup("Wobbling Category!"); UiType(Slider); Default(1.0f); Range(-2.0f, 2.0f); >;
+    FloatAttribute( WobbleAmount, true );
+
+    float WobbleTime< UiGroup("Wobbling Category!"); UiType(Slider); Default(1.0f); Range(0.0f, 20.0f); >;
+    FloatAttribute( WobbleTime, true );
+
+    float WobbleTime2< UiGroup("Wobbling Category!"); UiType(Slider); Default(1.0f); Range(0.0f, 20.0f); >;
+    FloatAttribute( WobbleTime2, true );
+
+    #include "includes/re_vr_shared_standard_vs_code.fxc"
+
+
+    // Define our vertex shader entry point
+    PsInput MainVs(VsInput i)
+    {
+        // Handle initial calculations for uvs, texture scrolling etc
+        PsInput o = VS_SharedStandardProcessing( i );
+
+        // If our mesh can wobble!
+        if(WobbleOurMesh)
+        {
+            // Grab the current time since the game has launched
+            // This is stored in re_PeViewConstantBuffer.fxc
+            float offsetTime = WobbleTime * g_flTime;
+
+            o.vPosition.x += sin(offsetTime + i.vPosition.x) * WobbleAmount;
+            o.vPosition.y += cos(offsetTime + i.vPosition.y) * WobbleAmount;
+            o.vPosition.z += sin(offsetTime + i.vPosition.z + i.vPosition.x + i.vPosition.y) * WobbleAmount;
+        }
+
+        // Convert our color space accordingly
+        o.vVertexColor.rgb = SrgbGammaToLinear( i.vColor.rgb );
+        o.vVertexColor.a = 1.0;
+
+        // Finish up with our world to screen transformation
+        return VS_CommonProcessing_Post(o);
+    }
+}
+
+PS
+{
+    // Define our pixel shader here
+
+    // Sets a render state
+    RenderState( DepthEnable, F_ENABLE_DEPTH ? true : false ); // Use our feature to specify how to set the render state
+    RenderState( DepthWriteEnable, F_ENABLE_DEPTH ? true : false );
+
+    // We can also define attributes here as well as in COMMON!
+    bool UseVertexColor< UiGroup("Extra Category"); UiType(CheckBox); Default(1); >;
+    BoolAttribute( UseVertexColor, true );
+
+    float4 CustomColor< UiGroup("Extra Category"); UiType(Color); Default4(1.0f, 0.0f, 0.0f, 1.0f); >;
+    Float4Attribute( CustomColor, true );
+
+    // Create our output
+    struct PsOutput
+    {
+        float4 vColor0 : SV_Target0; // Our output color
+    };
+
+    PsOutput MainPs( const PsInput i )
+    {
+        PsOutput o;
+        // If our bool is true, use the vertex color
+        if(UseVertexColor)
+        {
+            o.vColor0 = i.vVertexColor;
+        }
+        else
+        {
+            // If not use our custom color
+            o.vColor0 = CustomColor;
+        }
+        return o;
+    }
+}

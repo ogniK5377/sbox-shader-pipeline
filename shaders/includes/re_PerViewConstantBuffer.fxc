@@ -1,0 +1,56 @@
+#define HAS_PER_VIEW_CONSTBUFFERS
+
+cbuffer PerViewConstantBuffer_t : register(b1)
+{
+    float4x4 g_matWorldToProjection : packoffset(c0);
+    float4x4 g_matProjectionToWorld : packoffset(c4);
+    float4x4 g_matWorldToView : packoffset(c8);
+    float4x4 g_matViewToProjection : packoffset(c12);
+    float4 g_vInvProjRow3 : packoffset(c16);
+    float4 g_vClipPlane0 : packoffset(c17);
+    float g_flToneMapScalarLinear : packoffset(c18);
+    float g_flLightMapScalar;
+    float g_flEnvMapScalar;
+    float g_flToneMapScalarGamma;
+    float3 g_vCameraPositionWs : packoffset(c19);
+    float g_flViewportMinZ;
+    float3 g_vCameraDirWs : packoffset(c20);
+    float g_flViewportMaxZ;
+    float3 g_vCameraUpDirWs : packoffset(c21);
+    float g_flTime;
+    float3 g_vDepthPsToVsConversion : packoffset(c22);
+    float g_flNearPlane;
+    float g_flFarPlane : packoffset(c23);
+    float g_flLightBinnerFarPlane;
+    float2 g_vInvViewportSize;
+    float2 g_vViewportToGBufferRatio : packoffset(c24);
+    float2 g_vMorphTextureAtlasSize;
+    float4 g_vInvGBufferSize : packoffset(c25);
+    float2 g_vViewportOffset : packoffset(c26);
+    float2 g_vViewportSize;
+    float2 g_vRenderTargetSize : packoffset(c27);
+    float g_flFogBlendToBackground;
+    float g_flHenyeyGreensteinCoeff;
+    float3 g_vFogColor : packoffset(c28);
+    float g_flNegFogStartOverFogRange;
+    float g_flInvFogRange : packoffset(c29);
+    float g_flFogMaxDensity;
+    float g_flFogExponent;
+    float g_flMod2xIdentity;
+    float2 g_bRoughnessParams : packoffset(c30);
+    float g_bStereoEnabled;
+    float g_flStereoCameraIndex;
+    float3 g_vMiddleEyePositionWs : packoffset(c31);
+    float g_flPad2;
+    float4x4 g_matWorldToProjectionMultiview[2] : packoffset(c32);
+    float4 g_vCameraPositionWsMultiview[2] : packoffset(c40);
+    float4 g_vFrameBufferCopyInvSizeAndUvScale : packoffset(c42);
+    float4 g_vCameraAngles : packoffset(c43);
+    float4 g_vWorldToCameraOffset : packoffset(c44);
+    float4 g_vWorldToCameraOffsetMultiview[2] : packoffset(c45);
+    float4 g_vPerViewConstantExtraData0 : packoffset(c47);
+    float4 g_vPerViewConstantExtraData1 : packoffset(c48);
+    float4 g_vPerViewConstantExtraData2 : packoffset(c49);
+    float4 g_vPerViewConstantExtraData3 : packoffset(c50);
+    float4x4 m_matPrevProjectionToWorld : packoffset(c51);
+};

@@ -1,0 +1,64 @@
+#ifdef HAS_TEX_SUPPORT
+SamplerState g_sPackedTexture : register(s0);
+Texture2D<float4> g_tTransformTexture : register(t11);
+#endif
+
+float3 SrgbGammaToLinear(float3 c) {
+    c = max(c, 0);
+    return c < 0.04045f ? c * 0.0773993805 : pow(c * 0.9478672986 + 0.0521327014, 2.4);
+}
+
+float4 Position4WsToPs(float4 pos) {
+    float4 camOffset = g_vWorldToCameraOffset + pos;
+    return mul(g_matWorldToProjection, camOffset);
+}
+
+float4 Position3WsToPs(float3 pos) {
+    return Position4WsToPs(float4(pos.xyz, 1.0f));
+}
+
+PsInput VS_SharedStandardProcessing(VsInput i) {
+    PsInput o;
+
+    #ifdef HAS_TEX_SUPPORT
+        float3 unpackedPos = float3(0,0,0);
+        float3 unpackedNormal = float3(0,0,0);
+
+        float4 packedText = g_tTransformTexture.SampleLevel(g_sPackedTexture, i.vTexCoord13.xy, 0).xyzw;
+        float4 vPosition4 = float4(i.vPosition.xyz, 1.0f);
+
+        unpackedPos.x = dot(packedText.xyzw, vPosition4.xywz);
+        unpackedNormal.x = dot(packedText.xyz, i.vNormal.xyz);
+
+        packedText = g_tTransformTexture.SampleLevel(g_sPackedTexture, i.vTexCoord13.xy, 0, int2(1, 0)).xyzw;
+
+        unpackedPos.y = dot(packedText.xywz, vPosition4.xywz);
+        unpackedNormal.y = dot(packedText.xyz, i.vNormal.xyz);
+
+        packedText = g_tTransformTexture.SampleLevel(g_sPackedTexture, i.vTexCoord13.xy, 0, int2(2, 0)).xyzw;
+        unpackedPos.z = dot(packedText.xywz, vPosition4.xywz);
+        unpackedNormal.z = dot(packedText.xyz, i.vNormal.xyz);
+
+        o.vBaseUvs0.xyz = -g_vHighPrecisionLightingOffsetWs.xyz + unpackedPos;
+        o.vBaseUvs0.w = 0;
+
+        float orthoNormal = rsqrt(dot(unpackedNormal.xyz, unpackedNormal.xyz));
+        o.vUv1.xyz = unpackedNormal * orthoNormal;
+    
+    #else
+        o.vBaseUvs0 = i.vBaseUvs0;
+        o.vUv1 = i.vUv1;
+    #endif
+
+    float2 rescaledUvs = i.vBaseUvs0.xy * g_vTexCoordScale.xy + g_vTexCoordOffset.xy;
+    o.vScrollingCoordinates.xy = g_vTexCoordScrollSpeed.xy * g_flTime + rescaledUvs;
+
+    o.vPosition.xyz = i.vPosition.xyz; // need to pass this for post to handle it
+
+    return o;
+}
+
+PsInput VS_CommonProcessing_Post(PsInput o) {
+    o.vPosition = Position3WsToPs(o.vPosition.xyz);
+    return o;
+}

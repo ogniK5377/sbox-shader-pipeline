@@ -1,0 +1,30 @@
+cbuffer PerViewConstantBufferVR_t : register(b3)
+{
+    bool4 g_bFogTypeEnabled : packoffset(c0);
+    bool4 g_bOtherFxEnabled : packoffset(c1);
+    float4 g_vAoProxyDownres : packoffset(c2);
+    float4 g_vXenAnimation : packoffset(c3);
+    float4 g_vWindDirection : packoffset(c4);
+    float4 g_vWindStrengthFreqMulHighStrength : packoffset(c5);
+    float4 g_vInteractionProjectionOrigin : packoffset(c6);
+    float4 g_vInteractionVolumeInvExtents : packoffset(c7);
+    float4 g_vInteractionTriggerVolumeInvMins : packoffset(c8);
+    float4 g_vInteractionTriggerVolumeWorldToVolumeScale : packoffset(c9);
+    float4 g_vGradientFogBiasAndScale : packoffset(c10);
+    float4 m_vGradientFogExponents : packoffset(c11);
+    float4 g_vGradientFogColor_Opacity : packoffset(c12);
+    float4 g_vGradientFogCullingParams : packoffset(c13);
+    float4 g_vCubeFog_Offset_Scale_Bias_Exponent : packoffset(c14);
+    float4 g_vCubeFog_Height_Offset_Scale_Exponent_Log2Mip : packoffset(c15);
+    float4x4 g_matvCubeFogSkyWsToOs : packoffset(c16);
+    float4 g_vCubeFogCullingParams : packoffset(c20);
+    float4 g_vSphericalVignetteBiasAndScale : packoffset(c21);
+    float4 g_vSphericalVignetteOrigin_Exponent : packoffset(c22);
+    float4 g_vSphericalVignetteColor_Opacity : packoffset(c23);
+    float4 g_vVolFog_VolumeScale_Shift_Near_Range : packoffset(c24);
+    float4 g_vVolFogDitherScaleBias : packoffset(c25);
+    float4 g_vVolFogPostWorldToFrustumScale : packoffset(c26);
+    float4 g_vVolFogPostWorldToFrustumBias : packoffset(c27);
+    float4x4 g_mVolFogFromWorld[2] : packoffset(c28);
+    float4 g_vHighPrecisionLightingOffsetWs : packoffset(c36);
+};

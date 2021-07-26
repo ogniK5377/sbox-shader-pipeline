@@ -1,0 +1,13 @@
+cbuffer cb5 : register(b5)
+{
+    int lightCount : packoffset(c0);
+    float4 moreUnk[128] : packoffset(c6);
+    float4 lightPos[128] : packoffset(c134);
+    float4 unk4[128] : packoffset(c262);
+    float4 unk[128] : packoffset(c390);
+    float4 unk2[128] : packoffset(c518);
+    float4 unk3[128] : packoffset(c646);
+    //float4 unk5[128] : packoffset(c1954);
+    //float4 unk6[128] : packoffset(c2082);
+    //float4 cb5_[2221];
+};

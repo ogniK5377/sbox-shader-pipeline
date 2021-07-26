@@ -24,8 +24,11 @@ If you plan on creating a custom skybox which is used with the SkyObject, you mu
 If you want to refresh your shader within the material editor to update the properties with the click of the button there's a few things which need to be done.
 First your shader must be defined as a "Dev" shader, this property is set within your shaders `HEADER` with the field `DevShader = true;`
 Secondly when you create your material you will find it if you press the `Show Dev Shaders` checkbox!
+
 ![Show Dev Shaders](https://i.imgur.com/2TbZ6xg.png)
+
 Once done, you will see this refresh button which will cause the material editor to refresh your shader to update any missing properties and what not!
+
 ![Refresh button in the material editor](https://i.imgur.com/hmJMWDE.png)
 
 ## Crashes

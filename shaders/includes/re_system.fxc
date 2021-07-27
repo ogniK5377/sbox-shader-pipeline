@@ -95,3 +95,9 @@
     string g_inputTexture2D_##texName<string  inputColorSpace = #texInputColorSpace; string minPrecision = #texMinPrecision; string imageAlgorithm = texAlgorithm; string fileExt =  texFileExt; string uigroup = texUiGroup; texDefault; >
 
 #define TextureAttribute( baseName, value ) string g_texAttr_##baseName<string value = #value; >
+#define CreateTexture2DInRegister( texName, texReg ) \
+    SamplerState texName##_s : register(s##texReg); \
+    Texture2D<float4> ##texName: register(t##texReg)
+
+#define Tex2D( texName, texUvs ) texName.SampleLevel(texName##_s, ##texUvs, 0)
+#define Tex2DLevel( texName, texUvs, texLevel ) texName.SampleLevel(texName##_s, texUvs, texLevel)

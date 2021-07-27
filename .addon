@@ -1,3 +1,5 @@
 {
-
+    "sharedassets": "*.*",
+    "type": "game",
+    "ident": "fesh.shaderdev"
 }

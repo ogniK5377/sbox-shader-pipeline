@@ -11,8 +11,12 @@ Layer0
 	CustomColor "[1.000000 0.000000 0.000000 1.000000]"
 	UseVertexColor "0"
 
+	//---- My Texture Category ----
+	Texture "materials/textures/my_cool_texture.png"
+
 	//---- Wobbling Category! ----
-	WobbleAmount "2.000"
+	WobbleAmount "1.000"
 	WobbleOurMesh "1"
-	WobbleTime "20.000"
+	WobbleTime "1.000"
+	WobbleTime2 "1.000"
 }

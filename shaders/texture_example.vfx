@@ -1,0 +1,85 @@
+HEADER
+{
+    DevShader = true; // Specifies if this shader is a development shader or not
+    CompileTargets = ( IS_SM_50 && ( PC || VULKAN ) ); // Platforms to compile to
+    Description = "Our basic textured shader!"; // The description of our shader(this will come up in the material browser)
+    Version = 1;
+}
+
+MODES
+{
+    VrForward(); // The shading mode we'll use. Typically you'll keep this for forward rendering
+}
+
+FEATURES
+{
+    // Features MUST begin with F_
+    Feature(F_ENABLE_DEPTH, 0..1, "Category name"); // Specify a feature which is a bool
+}
+
+COMMON
+{
+    // Definitions placed in here will be accessed to all defined shdaer types below.
+    // Typically you'd define your pixel shader input here as well as all the constbuffers you'll be using.
+
+    // Required by re_system & re_vr_shared_standard_vs_code
+    #include "includes/re_Globals.fxc"
+    #include "includes/re_PerViewConstantBuffer.fxc"
+    #include "includes/re_PerViewConstantBufferVR.fxc"
+
+    #include "includes/re_system.fxc"
+
+    // Input buffer to our pixel shader. The vertex shader will be outputting this struct too!
+    struct PsInput
+    {
+        #include "includes/re_vr_shared_standard_ps_input.fxc"
+    };
+
+    struct VsInput
+    {
+        #include "includes/re_vr_shared_standard_vs_input.fxc"
+    };
+}
+
+VS
+{
+    // Define our vertex shader here.
+    #include "includes/re_vr_shared_standard_vs_code.fxc"
+
+
+    // Define our vertex shader entry point
+    PsInput MainVs(VsInput i)
+    {
+        // Handle initial calculations for uvs, texture scrolling etc
+        PsInput o = VS_SharedStandardProcessing( i );
+
+        // Finish up with our world to screen transformation
+        return VS_CommonProcessing_Post(o);
+    }
+}
+
+PS
+{
+    // Define our pixel shader here
+
+    // Sets a render state
+    RenderState( DepthEnable, F_ENABLE_DEPTH ? true : false ); // Use our feature to specify how to set the render state
+    RenderState( DepthWriteEnable, F_ENABLE_DEPTH ? true : false );
+
+    CreateInputTexture2D( Texture, Srgb, 8, "", "", "My Texture Category", Default3( 1.0, 1.0, 1.0 ) );
+    CreateTexture2DInRegister( g_MyTexture, 0 )< Channel( RGBA, "None(Texture)", Srgb ); TexOutputFormat("DXT5"); >;
+    ExposeTextureAttribute( g_MyTexture, true );
+
+    // Create our output
+    struct PsOutput
+    {
+        float4 vColor0 : SV_Target0; // Our output color
+    };
+
+    PsOutput MainPs( const PsInput i )
+    {
+        PsOutput o;
+        o.vColor0 = Tex2D(g_MyTexture, i.vBaseUvs0);
+        return o;
+    }
+}

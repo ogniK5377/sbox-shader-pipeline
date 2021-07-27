@@ -80,7 +80,7 @@ PS
     PsOutput MainPs( const PsInput i )
     {
         PsOutput o;
-        o.vColor0 = Tex2DLevel(g_MyTexture, i.vBaseUvs0.xy, 1);
+        o.vColor0 = Tex2D(g_MyTexture, i.vBaseUvs0.xy);
         return o;
     }
 }

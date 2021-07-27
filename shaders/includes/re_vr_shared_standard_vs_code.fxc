@@ -1,6 +1,7 @@
 #ifdef HAS_TEX_SUPPORT
-SamplerState g_sPackedTexture : register(s0);
-Texture2D<float4> g_tTransformTexture : register(t11);
+    CreateInputTexture2D( transformationTexture, linear, 8, "", "", "Transformation Texture", Default3( 1.0, 1.0, 1.0 ) );
+    CreateTexture2DInRegisterWithoutSampler( g_tTransformTexture, 11 )< Channel( RGBA, "None(g_tTransformTexture)", linear ); TexOutputFormat("RGBA32323232F"); >;
+    CreateSampler2DWithRegister( g_tTransformTexture, 11 )< Filter(MIN_MAG_MIP_POINT); AddressU(WRAP); AddressV(WRAP); AddressW(WRAP); >;
 #endif
 
 float3 SrgbGammaToLinear(float3 c) {
@@ -24,18 +25,18 @@ PsInput VS_SharedStandardProcessing(VsInput i) {
         float3 unpackedPos = float3(0,0,0);
         float3 unpackedNormal = float3(0,0,0);
 
-        float4 packedText = g_tTransformTexture.SampleLevel(g_sPackedTexture, i.vTexCoord13.xy, 0).xyzw;
+        float4 packedText = Tex2D(g_tTransformTexture, i.vTexCoord13.xy);
         float4 vPosition4 = float4(i.vPosition.xyz, 1.0f);
 
         unpackedPos.x = dot(packedText.xyzw, vPosition4.xywz);
         unpackedNormal.x = dot(packedText.xyz, i.vNormal.xyz);
 
-        packedText = g_tTransformTexture.SampleLevel(g_sPackedTexture, i.vTexCoord13.xy, 0, int2(1, 0)).xyzw;
+        packedText = Tex2DOffset(g_tTransformTexture, i.vTexCoord13.xy, int2(1, 0));
 
         unpackedPos.y = dot(packedText.xywz, vPosition4.xywz);
         unpackedNormal.y = dot(packedText.xyz, i.vNormal.xyz);
 
-        packedText = g_tTransformTexture.SampleLevel(g_sPackedTexture, i.vTexCoord13.xy, 0, int2(2, 0)).xyzw;
+        packedText = Tex2DOffset(g_tTransformTexture, i.vTexCoord13.xy, int2(2, 0));
         unpackedPos.z = dot(packedText.xywz, vPosition4.xywz);
         unpackedNormal.z = dot(packedText.xyz, i.vNormal.xyz);
 

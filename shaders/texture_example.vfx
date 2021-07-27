@@ -68,8 +68,11 @@ PS
 
     CreateInputTexture2D( Texture, Srgb, 8, "", "", "My Texture Category", Default3( 1.0, 1.0, 1.0 ) );
     CreateTexture2DInRegisterWithoutSampler( g_MyTexture, 0 )< Channel( RGBA, "None(Texture)", Srgb ); TexOutputFormat("RGBA8888"); >;
+    
     CreateSampler2DWithRegister( g_MyTexture, 0 )< Filter(POINT); AddressU(BORDER); AddressV(BORDER); AddressW(BORDER); >;
+    
     ExposeTextureAttribute( g_MyTexture, true );
+
 
     // Create our output
     struct PsOutput

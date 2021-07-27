@@ -134,10 +134,10 @@
 #define AddressV( arg ) string SamplerState_AddressV = #arg
 #define AddressW( arg ) string SamplerState_AddressW = #arg
 
-#define BorderColor( arg ) string SamplerState_BorderColor = #arg
-#define MipBias( arg ) string SamplerState_MipBias = #arg
-#define MaxLOD( arg ) string SamplerState_MaxLOD = #arg
-#define MinLOD( arg ) string SamplerState_MinLOD = #arg
+#define MipBias( arg ) string SamplerState_MipBias = ##arg
+#define MaxAniso( arg ) string SamplerState_MaxAniso = ##arg
+#define MaxLOD( arg ) string SamplerState_MaxLOD = ##arg
+#define MinLOD( arg ) string SamplerState_MinLOD = ##arg
 
 /*
     NEVER
@@ -162,3 +162,4 @@
 #define CreateSampler2D( texName ) SamplerState texName##_s
 #define Tex2D( texName, texUvs ) texName.SampleLevel(texName##_s, ##texUvs.xy, 0)
 #define Tex2DLevel( texName, texUvs, texLevel ) texName.SampleLevel(texName##_s, texUvs.xy, texLevel)
+#define Tex2DOffset( texName, texUvs, texOffset ) texName.SampleLevel(texName##_s, texUvs.xy, 0, texOffset )

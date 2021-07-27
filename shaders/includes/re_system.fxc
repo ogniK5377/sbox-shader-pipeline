@@ -94,10 +94,71 @@
 #define CreateInputTexture2D( texName, texInputColorSpace, texMinPrecision, texAlgorithm, texFileExt, texUiGroup, texDefault ) \
     string g_inputTexture2D_##texName<string  inputColorSpace = #texInputColorSpace; string minPrecision = #texMinPrecision; string imageAlgorithm = texAlgorithm; string fileExt =  texFileExt; string uigroup = texUiGroup; texDefault; >
 
+#define _INT_SamplerState(sampState, sampArg) string SamplerState_##sampState = #sampArg
+/*
+    MIN_MAG_MIP_POINT
+    MIN_MAG_POINT_MIP_LINEAR
+    MIN_POINT_MAG_LINEAR_MIP_POINT
+    MIN_POINT_MAG_MIP_LINEAR
+    MIN_LINEAR_MAG_MIP_POINT
+    MIN_LINEAR_MAG_POINT_MIP_LINEAR
+    MIN_MAG_LINEAR_MIP_POINT
+    MIN_MAG_MIP_LINEAR
+    ANISOTROPIC
+    COMPARISON_MIN_MAG_MIP_POINT
+    COMPARISON_MIN_MAG_POINT_MIP_LINEAR
+    COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT
+    COMPARISON_MIN_POINT_MAG_MIP_LINEAR
+    COMPARISON_MIN_LINEAR_MAG_MIP_POINT
+    COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR
+    COMPARISON_MIN_MAG_LINEAR_MIP_POINT
+    COMPARISON_MIN_MAG_MIP_LINEAR
+    COMPARISON_ANISOTROPIC
+    USER_CONFIG
+    ANISO
+    BILINEAR
+    TRILINEAR
+    POINT
+    NEAREST
+*/
+#define Filter( arg ) string SamplerState_Filter = #arg
+
+/*
+    WRAP
+    MIRROR
+    CLAMP
+    BORDER
+    MIRROR_ONCE
+*/
+#define AddressU( arg ) string SamplerState_AddressU = #arg
+#define AddressV( arg ) string SamplerState_AddressV = #arg
+#define AddressW( arg ) string SamplerState_AddressW = #arg
+
+#define BorderColor( arg ) string SamplerState_BorderColor = #arg
+#define MipBias( arg ) string SamplerState_MipBias = #arg
+#define MaxLOD( arg ) string SamplerState_MaxLOD = #arg
+#define MinLOD( arg ) string SamplerState_MinLOD = #arg
+
+/*
+    NEVER
+    LESS
+    EQUAL
+    LESS_EQUAL
+    GREATER
+    NOT_EQUAL
+    GREATER_EQUAL
+    ALWAYS
+*/
+#define ComparisonFunc( arg ) string SamplerState_ComparisonFunc = #arg
+
+
 #define TextureAttribute( baseName, value ) string g_texAttr_##baseName<string value = #value; >
 #define CreateTexture2DInRegister( texName, texReg ) \
     SamplerState texName##_s : register(s##texReg); \
     Texture2D<float4> ##texName: register(t##texReg)
 
-#define Tex2D( texName, texUvs ) texName.SampleLevel(texName##_s, ##texUvs, 0)
-#define Tex2DLevel( texName, texUvs, texLevel ) texName.SampleLevel(texName##_s, texUvs, texLevel)
+#define CreateTexture2DInRegisterWithoutSampler( texName, texReg ) Texture2D<float4> ##texName: register(t##texReg)
+#define CreateSampler2DWithRegister( texName, texReg )  SamplerState texName##_s : register(s##texReg)
+#define CreateSampler2D( texName ) SamplerState texName##_s
+#define Tex2D( texName, texUvs ) texName.SampleLevel(texName##_s, ##texUvs.xy, 0)
+#define Tex2DLevel( texName, texUvs, texLevel ) texName.SampleLevel(texName##_s, texUvs.xy, texLevel)

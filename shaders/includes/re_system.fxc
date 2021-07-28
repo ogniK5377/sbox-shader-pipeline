@@ -153,6 +153,9 @@
 
 #define AsTransformTexture( emptyArg ) Attribute("TransformTexture")
 #define AsSceneDepth( emptyArg ) Attribute("SceneDepth")
+#define AsFramebuffer( emptyArg ) Attribute("FrameBufferCopyTexture")
+#define AsBlueNoise( emptyArg ) Attribute("BlueNoise")
+
 
 #define TextureAttribute( baseName, value ) string g_texAttr_##baseName<string value = #value; >
 #define CreateTexture2DInRegister( texName, texReg ) \

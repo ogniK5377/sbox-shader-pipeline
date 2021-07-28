@@ -67,12 +67,12 @@ PS
     RenderState( DepthWriteEnable, F_ENABLE_DEPTH ? true : false );
 
     CreateInputTexture2D( Texture, Srgb, 8, "", "", "My Texture Category", Default3( 1.0, 1.0, 1.0 ) );
-    CreateTexture2DInRegisterWithoutSampler( g_MyTexture, 0 )< Channel( RGBA, "None(Texture)", Srgb ); TexOutputFormat("RGBA8888"); >;
-    
-    CreateSampler2DWithRegister( g_MyTexture, 0 )< Filter(POINT); AddressU(BORDER); AddressV(BORDER); AddressW(BORDER); >;
-    
+    CreateTexture2DInRegisterWithoutSampler( g_MyTexture, 1 )< Channel( RGBA, "None(Texture)", Srgb ); TexOutputFormat("RGBA8888"); >;
+    CreateSampler2DWithRegister( g_MyTexture, 1 )< Filter(POINT); AddressU(BORDER); AddressV(BORDER); AddressW(BORDER); >;
     ExposeTextureAttribute( g_MyTexture, true );
 
+
+    CreateTexture2DInRegister(g_tSceneDepth, 2)< AsSceneDepth(true); >;
 
     // Create our output
     struct PsOutput
@@ -83,7 +83,8 @@ PS
     PsOutput MainPs( const PsInput i )
     {
         PsOutput o;
-        o.vColor0 = Tex2D(g_MyTexture, i.vBaseUvs0.xy);
+        o.vColor0 = Tex2D(g_MyTexture, i.vBaseUv.xy);
+        // o.vColor0 = float4(pow(Tex2D(g_tSceneDepth, i.vBaseUv.xy).xxx, 32.0), 1);
         return o;
     }
 }

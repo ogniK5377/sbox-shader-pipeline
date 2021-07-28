@@ -151,6 +151,8 @@
 */
 #define ComparisonFunc( arg ) string SamplerState_ComparisonFunc = #arg
 
+#define AsTransformTexture( emptyArg ) Attribute("TransformTexture")
+#define AsSceneDepth( emptyArg ) Attribute("SceneDepth")
 
 #define TextureAttribute( baseName, value ) string g_texAttr_##baseName<string value = #value; >
 #define CreateTexture2DInRegister( texName, texReg ) \
@@ -162,4 +164,5 @@
 #define CreateSampler2D( texName ) SamplerState texName##_s
 #define Tex2D( texName, texUvs ) texName.SampleLevel(texName##_s, ##texUvs.xy, 0)
 #define Tex2DLevel( texName, texUvs, texLevel ) texName.SampleLevel(texName##_s, texUvs.xy, texLevel)
+#define Tex2DLevelOffset( texName, texUvs, texLevel, texOffset ) texName.SampleLevel(texName##_s, texUvs.xy, texLevel, texOffset)
 #define Tex2DOffset( texName, texUvs, texOffset ) texName.SampleLevel(texName##_s, texUvs.xy, 0, texOffset )

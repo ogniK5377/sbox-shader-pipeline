@@ -3,3 +3,5 @@ float4 vBaseUvs0 : TEXCOORD0;
 float4 vUv1 : TEXCOORD1;
 float4 vScrollingCoordinates : TEXCOORD2;
 float4 vVertexColor : TEXCOORD4;
+float4 vBaseUv : TEXCOORD5;
+float4 vUv12 : TEXCOORD12;

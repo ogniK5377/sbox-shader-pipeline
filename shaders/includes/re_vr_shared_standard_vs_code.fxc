@@ -41,13 +41,13 @@ PsInput VS_SharedStandardProcessing(VsInput i) {
         unpacked0.z = dot(packedTextured.xyzw, basePosition);
         unpacked1.z = dot(packedTextured.xyz, i.vNormal.xyz);
 
-        o.vBaseUvs0.xyz = -g_vHighPrecisionLightingOffsetWs.xyz + unpacked0.xyz;
+        o.vPositionWithOffsetWs.xyz = -g_vHighPrecisionLightingOffsetWs.xyz + unpacked0.xyz;
         float d = rsqrt(dot(unpacked1.xyz, unpacked1.xyz));
 
-        o.vUv1.xyz = unpacked1.xyz * d;
+        o.vNormalWs.xyz = unpacked1.xyz * d;
     #else
-        o.vBaseUvs0 = i.vBaseUvs0;
-        o.vUv1 = i.vUv1;
+        o.vPositionWithOffsetWs = i.vBaseUvs0;
+        o.vNormalWs = i.vUv1;
     #endif
 
     o.vBaseUv = i.vBaseUvs0;

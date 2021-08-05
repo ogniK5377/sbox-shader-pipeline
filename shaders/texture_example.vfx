@@ -28,18 +28,17 @@ COMMON
     #include "includes/re_PerViewConstantBufferVR.fxc"
 
     #include "includes/re_system.fxc"
-
-    // Input buffer to our pixel shader. The vertex shader will be outputting this struct too!
-    struct PsInput
-    {
-        #include "includes/re_vr_shared_standard_ps_input.fxc"
-    };
-
-    struct VsInput
-    {
-        #include "includes/re_vr_shared_standard_vs_input.fxc"
-    };
 }
+
+struct VS_INPUT
+{
+    #include "includes/re_vr_shared_standard_vs_input.fxc"
+};
+
+struct PS_INPUT
+{
+    #include "includes/re_vr_shared_standard_ps_input.fxc"
+};
 
 VS
 {
@@ -48,10 +47,10 @@ VS
 
 
     // Define our vertex shader entry point
-    PsInput MainVs(VsInput i)
+    PS_INPUT MainVs(VS_INPUT i)
     {
         // Handle initial calculations for uvs, texture scrolling etc
-        PsInput o = VS_SharedStandardProcessing( i );
+        PS_INPUT o = VS_SharedStandardProcessing( i );
 
         // Finish up with our world to screen transformation
         return VS_CommonProcessing_Post(o);
@@ -75,15 +74,15 @@ PS
     CreateTexture2DInRegister(g_tSceneDepth, 2)< AsSceneDepth(true); >;
 
     // Create our output
-    struct PsOutput
+    struct PS_OUTPUT
     {
         float4 vColor0 : SV_Target0; // Our output color
     };
 
-    PsOutput MainPs( const PsInput i )
+    PS_OUTPUT MainPs( const PS_INPUT i )
     {
-        PsOutput o;
-        o.vColor0 = Tex2D(g_MyTexture, i.vBaseUv.xy);
+        PS_OUTPUT o;
+        o.vColor0 = Tex2D(g_MyTexture, i.vTexCoord.xy);
         // o.vColor0 = float4(pow(Tex2D(g_tSceneDepth, i.vBaseUv.xy).xxx, 32.0), 1);
         return o;
     }

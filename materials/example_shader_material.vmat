@@ -2,11 +2,18 @@
 
 Layer0
 {
-	shader "texture_example.vfx"
+	shader "example_shader.vfx"
 
 	//---- Category name ----
 	F_ENABLE_DEPTH 1
 
-	//---- My Texture Category ----
-	Texture "materials/textures/my_cool_texture.png"
+	//---- Extra Category ----
+	CustomColor "[1.000000 0.000000 0.000000 1.000000]"
+	UseVertexColor "0"
+
+	//---- Wobbling Category! ----
+	WobbleAmount "0.500"
+	WobbleOurMesh "1"
+	WobbleTime "15.506"
+	WobbleTime2 "3.034"
 }

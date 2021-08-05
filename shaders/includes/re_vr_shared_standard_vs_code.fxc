@@ -1,10 +1,5 @@
-#ifdef HAS_TEX_SUPPORT
-    // CreateInputTexture2D( transformationTexture, linear, 8, "", "", "Transformation Texture", Default3( 1.0, 1.0, 1.0 ) );
-    // CreateTexture2DInRegisterWithoutSampler( g_tTransformTexture, 11 )< Channel( RGBA, "None(g_tTransformTexture)", linear ); TexOutputFormat("RGBA32323232F"); Attribute("TransformTexture"); >;
-    // CreateSampler2DWithRegister( g_tTransformTexture, 11 )< Filter(MIN_MAG_MIP_POINT); AddressU(WRAP); AddressV(WRAP); AddressW(WRAP); >;
-    SamplerState g_tTransformTexture_s : register(s0)< Filter(MIN_MAG_MIP_POINT); AddressU(WRAP); AddressV(WRAP); AddressW(WRAP); >;
-    Texture2D<float4> g_tTransformTexture : register(t11)< AsTransformTexture(true); >;
-#endif
+SamplerState g_tTransformTexture_s < Filter(MIN_MAG_MIP_POINT); AddressU(WRAP); AddressV(WRAP); AddressW(WRAP); >;
+Texture2D<float4> g_tTransformTexture < AsTransformTexture(true); >;
 
 float3 SrgbGammaToLinear(float3 c) {
     c = max(c, 0);
@@ -12,61 +7,95 @@ float3 SrgbGammaToLinear(float3 c) {
 }
 
 float4 Position4WsToPs(float4 pos) {
+#ifdef USE_MULTI_VIEW
+    float4 camOffset = g_vWorldToCameraOffsetMultiview[MULTI_VIEW_OFFSET] + pos;
+    return mul(g_matWorldToProjectionMultiview[MULTI_VIEW_OFFSET], camOffset);
+#else
     float4 camOffset = g_vWorldToCameraOffset + pos;
     return mul(g_matWorldToProjection, camOffset);
+#endif
 }
 
 float4 Position3WsToPs(float3 pos) {
     return Position4WsToPs(float4(pos.xyz, 1.0f));
 }
 
-PsInput VS_SharedStandardProcessing(VsInput i) {
-    PsInput o;
+#define GetInstancedData \
+float4 instancedData[3]; \
+instancedData[0] = Tex2DOffset(g_tTransformTexture, i.vTransformTextureUV.xy, int2(0,0)); \
+instancedData[1] = Tex2DOffset(g_tTransformTexture, i.vTransformTextureUV.xy, int2(1,0)); \
+instancedData[2] = Tex2DOffset(g_tTransformTexture, i.vTransformTextureUV.xy, int2(2,0)); \
 
-    #ifdef HAS_TEX_SUPPORT
-        float3 unpacked0 = float3(0,0,0);
-        float3 unpacked1 = float3(0,0,0);
 
-        float4 packedTextured = Tex2DLevelOffset(g_tTransformTexture, i.vTexCoord13.xy, 0, int2(0,0)).xyzw;
-        float4 basePosition = float4(i.vPosition.xyz, 1.0);
+#define DecompressNormal(compressedNormalOs, decompressedNormalOs) \
+{ \
+    decompressedNormalOs.x = dot(instancedData[0].xyz, compressedNormalOs.xyz); \
+    decompressedNormalOs.y = dot(instancedData[1].xyz, compressedNormalOs.xyz); \
+    decompressedNormalOs.z = dot(instancedData[2].xyz, compressedNormalOs.xyz); \
+    decompressedNormalOs *= rsqrt(dot(decompressedNormalOs, decompressedNormalOs)); \
+}
 
-        unpacked0.x = dot(packedTextured, basePosition);
-        unpacked1.x = dot(packedTextured.xyz, i.vNormal.xyz);
+float4 ClipSpacePositionForLightBinner( float3 worldPosition, float4 projectedPosition )
+{
+    float4 output;
+    
+    float d = dot(worldPosition - g_vCameraPositionWs.xyz, g_vCameraDirWs.xyz) - g_flNearPlane;
 
-        packedTextured = Tex2DLevelOffset(g_tTransformTexture, i.vTexCoord13.xy, 0, int2(1,0)).xyzw;
-        unpacked0.y = dot(packedTextured.xyzw, basePosition);
-        unpacked1.y = dot(packedTextured.xyz, i.vNormal.xyz);
+    output.xyw = projectedPosition.xyw;
+    output.z = d / (g_flNearPlane - g_flLightBinnerFarPlane);
+    return output;
+}
 
-        packedTextured = Tex2DLevelOffset(g_tTransformTexture, i.vTexCoord13.xy, 0, int2(2,0)).xyzw;
-        unpacked0.z = dot(packedTextured.xyzw, basePosition);
-        unpacked1.z = dot(packedTextured.xyz, i.vNormal.xyz);
+PS_INPUT VS_SharedStandardProcessing(VS_INPUT i) {
+    PS_INPUT o;
+    o.vVertexColor = float4(1,1,1,1);
 
-        o.vPositionWithOffsetWs.xyz = -g_vHighPrecisionLightingOffsetWs.xyz + unpacked0.xyz;
-        float d = rsqrt(dot(unpacked1.xyz, unpacked1.xyz));
+    GetInstancedData;
 
-        o.vNormalWs.xyz = unpacked1.xyz * d;
-    #else
-        o.vPositionWithOffsetWs = i.vBaseUvs0;
-        o.vNormalWs = i.vUv1;
-    #endif
+    float3x4 matObjectToWorld = float3x4(instancedData[0], instancedData[1], instancedData[2]);
 
-    o.vBaseUv = i.vBaseUvs0;
+    //-------------------------------------//
+    // Decompress normal and tangent basis //
+    //-------------------------------------//
+    float4 vInputNormalOs = i.vNormalOs.xyzw;
+    //-------------------------//
+    // World normal & morphing //
+    //-------------------------//
+    float3 vAnimationScale = float3(1,1,1);
+    float3 vNormalWs;
+    float3 vPositionOs = i.vPositionOs.xyz;
+    float3 vNormalOs;
 
-    float2 rescaledUvs = i.vBaseUvs0.xy * g_vTexCoordScale.xy + g_vTexCoordOffset.xy;
-    o.vScrollingCoordinates.xy = g_vTexCoordScrollSpeed.xy * g_flTime + rescaledUvs;
+    //--------------------------------//
+    // Tangent space and world normal //
+    //--------------------------------//
+    DecompressNormal(vInputNormalOs.xyzw, vNormalOs.xyz);
+    vNormalWs.xyz = normalize( mul( matObjectToWorld, float4( vNormalOs.xyz, 0.0 ) ) );
+    o.vNormalWs = vNormalWs;
+    
+    //----------------//
+    // World position //
+    //----------------//
+    float3 vPositionWs = mul( matObjectToWorld, float4( vPositionOs.xyz * vAnimationScale.xyz, 1.0 ) );
+    o.vPositionPs.xyz = vPositionWs.xyz;
 
-    o.vPosition.xyz = i.vPosition.xyz; // need to pass this for post to handle it
-    o.vUv12.xy = i.vTexCoord13.xy; 
+    o.vTexCoord = i.vTexCoord;
     return o;
 }
 
-PsInput VS_CommonProcessing_Post(PsInput o) {
-#ifdef HAS_TEX_SUPPORT
-    float n = Tex2DLevelOffset(g_tTransformTexture, o.vUv12.xy, 0, int2(3, 0)).z;
-    o.vUv12.x = (int)n & 0x0000ffff;
-    o.vUv12.y = 0;
-#endif
+PS_INPUT VS_CommonProcessing_Post(PS_INPUT o) {
+    float3 vPositionWs = o.vPositionPs.xyz;
+    //--------------------//
+    // Projected position //
+    //--------------------//
+    o.vPositionPs.xyzw = Position3WsToPs( vPositionWs );
+    o.vPositionWs = vPositionWs;
 
-    o.vPosition = Position3WsToPs(o.vPosition.xyz);
+    //-----------------------------------//
+    // Normalized depth & world position //
+    //-----------------------------------//
+    o.vDepthZWPs.xy = o.vPositionPs.zw;
+    
+    o.vPositionCs.xyzw = ClipSpacePositionForLightBinner(  vPositionWs.xyz, o.vPositionPs.xyzw );
     return o;
 }

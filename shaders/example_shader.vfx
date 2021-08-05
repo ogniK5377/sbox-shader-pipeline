@@ -33,20 +33,19 @@ COMMON
     #include "includes/re_PerViewConstantBufferVR.fxc"
 
     #include "includes/re_system.fxc"
-
-    // Input buffer to our pixel shader. The vertex shader will be outputting this struct too!
-    struct PsInput
-    {
-        #include "includes/re_vr_shared_standard_ps_input.fxc"
-    };
-
-    struct VsInput
-    {
-        #include "includes/re_vr_shared_standard_vs_input.fxc"
-
-        float4 vColor : COLOR0< Semantic(Color); >; // Fetch another input for our current vertex color!
-    };
 }
+
+struct VS_INPUT
+{
+    #include "includes/re_vr_shared_standard_vs_input.fxc"
+
+    float4 vColor : COLOR0< Semantic(Color); >; // Fetch another input for our current vertex color!
+};
+
+struct PS_INPUT
+{
+    #include "includes/re_vr_shared_standard_ps_input.fxc"
+};
 
 VS
 {
@@ -64,17 +63,14 @@ VS
     float WobbleTime< UiGroup("Wobbling Category!"); UiType(Slider); Default(1.0f); Range(0.0f, 20.0f); >;
     FloatAttribute( WobbleTime, true );
 
-    float WobbleTime2< UiGroup("Wobbling Category!"); UiType(Slider); Default(1.0f); Range(0.0f, 20.0f); >;
-    FloatAttribute( WobbleTime2, true );
-
     #include "includes/re_vr_shared_standard_vs_code.fxc"
 
 
     // Define our vertex shader entry point
-    PsInput MainVs(VsInput i)
+    PS_INPUT MainVs(VS_INPUT i)
     {
         // Handle initial calculations for uvs, texture scrolling etc
-        PsInput o = VS_SharedStandardProcessing( i );
+        PS_INPUT o = VS_SharedStandardProcessing( i );
 
         // If our mesh can wobble!
         if(WobbleOurMesh)
@@ -83,9 +79,9 @@ VS
             // This is stored in re_PeViewConstantBuffer.fxc
             float offsetTime = WobbleTime * g_flTime;
 
-            o.vPosition.x += sin(offsetTime + i.vPosition.x) * WobbleAmount;
-            o.vPosition.y += cos(offsetTime + i.vPosition.y) * WobbleAmount;
-            o.vPosition.z += sin(offsetTime + i.vPosition.z + i.vPosition.x + i.vPosition.y) * WobbleAmount;
+            o.vPositionPs.x += sin(offsetTime + i.vPositionOs.x) * WobbleAmount;
+            o.vPositionPs.y += cos(offsetTime + i.vPositionOs.y) * WobbleAmount;
+            o.vPositionPs.z += sin(offsetTime + i.vPositionOs.z + i.vPositionOs.x + i.vPositionOs.y) * WobbleAmount;
         }
 
         // Convert our color space accordingly
@@ -113,14 +109,14 @@ PS
     Float4Attribute( CustomColor, true );
 
     // Create our output
-    struct PsOutput
+    struct PS_OUTPUT
     {
         float4 vColor0 : SV_Target0; // Our output color
     };
 
-    PsOutput MainPs( const PsInput i )
+    PS_OUTPUT MainPs( const PS_INPUT i )
     {
-        PsOutput o;
+        PS_OUTPUT o;
         // If our bool is true, use the vertex color
         if(UseVertexColor)
         {

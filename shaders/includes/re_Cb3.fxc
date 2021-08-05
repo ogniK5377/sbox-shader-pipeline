@@ -1,0 +1,4 @@
+cbuffer cb3 : register(b3)
+{
+    float3 cb3_unknown36: packoffset(c36);
+};

@@ -1,0 +1,134 @@
+HEADER
+{
+    DevShader = true; // Specifies if this shader is a development shader or not
+    CompileTargets = ( IS_SM_50 && ( PC || VULKAN ) ); // Platforms to compile to
+    Description = "A user configurable texture example!"; // The description of our shader(this will come up in the material browser)
+    Version = 1;
+}
+
+MODES
+{
+    VrForward(); // The shading mode we'll use. Typically you'll keep this for forward rendering
+}
+
+FEATURES
+{
+    // Features MUST begin with F_
+    // Texture filters
+    Feature(F_FILTER, 0..23(
+          0="Min Mag Mip Point",
+          1="Min Mag Point Mip Linear",
+          2="Min Point Mag Linear Mip Point",
+          3="Min Point Mag Mip Linear",
+          4="Min Linear Mag Mip Point",
+          5="Min Linear Mag Point Mip Linear",
+          6="Min Mag Linear Mip Point",
+          7="Min Mag Mip Linear",
+          8="Anisotropic",
+          9="Comparison Min Mag Mip Point",
+          10="Comparison Min Mag Point Mip Linear",
+          11="Comparison Min Point Mag Linear Mip Point",
+          12="Comparison Min Point Mag Mip Linear",
+          13="Comparison Min Linear Mag Mip Point",
+          14="Comparison Min Linear Mag Point Mip Linear",
+          15="Comparison Min Mag Linear Mip Point",
+          16="Comparison Min Mag Mip Linear",
+          17="Comparison Anisotropic",
+          18="User Config",
+          19="Aniso",
+          20="Bilinear",
+          21="Trilinear",
+          22="Point",
+          23="Nearest", "Texture Settings");
+
+    // U Address mode
+    Feature(F_ADDRESS_U, 0..4(
+            0="Wrap",
+            1="Mirror",
+            2="Clamp",
+            3="Border",
+            4="Mirror Once", "Texture Settings");
+
+    // V Address mode
+    Feature(F_ADDRESS_V, 0..4(
+            0="Wrap",
+            1="Mirror",
+            2="Clamp",
+            3="Border",
+            4="Mirror Once", "Texture Settings");
+
+    // W Address mode
+    Feature(F_ADDRESS_W, 0..4(
+            0="Wrap",
+            1="Mirror",
+            2="Clamp",
+            3="Border",
+            4="Mirror Once", "Texture Settings");
+}
+
+COMMON
+{
+    // Definitions placed in here will be accessed to all defined shdaer types below.
+    // Typically you'd define your pixel shader input here as well as all the constbuffers you'll be using.
+
+    // Required by re_system & re_vr_shared_standard_vs_code
+    #include "includes/re_Globals.fxc"
+    #include "includes/re_PerViewConstantBuffer.fxc"
+    #include "includes/re_PerViewConstantBufferVR.fxc"
+
+    #include "includes/re_system.fxc"
+}
+
+struct VS_INPUT
+{
+    #include "includes/re_vr_shared_standard_vs_input.fxc"
+};
+
+struct PS_INPUT
+{
+    #include "includes/re_vr_shared_standard_ps_input.fxc"
+};
+
+VS
+{
+    // Define our vertex shader here.
+    #include "includes/re_vr_shared_standard_vs_code.fxc"
+
+
+    // Define our vertex shader entry point
+    PS_INPUT MainVs(VS_INPUT i)
+    {
+        // Handle initial calculations for uvs, texture scrolling etc
+        PS_INPUT o = VS_SharedStandardProcessing( i );
+
+        // Finish up with our world to screen transformation
+        return VS_CommonProcessing_Post(o);
+    }
+}
+
+PS
+{
+    // Define our pixel shader here
+
+    CreateInputTexture2D( Texture, Srgb, 8, "", "", "My Texture Category", Default3( 1.0, 1.0, 1.0 ) );
+    CreateTexture2DInRegisterWithoutSampler( g_MyTexture, 1 )< Channel( RGBA, "None(Texture)", Srgb ); TexOutputFormat("RGBA8888"); >;
+    CreateSampler2DWithRegister( g_MyTexture, 1 )< 
+    Filter((F_FILTER==0?MIN_MAG_MIP_POINT:((F_FILTER==1?MIN_MAG_POINT_MIP_LINEAR:((F_FILTER==2?MIN_POINT_MAG_LINEAR_MIP_POINT:((F_FILTER==3?MIN_POINT_MAG_MIP_LINEAR:((F_FILTER==4?MIN_LINEAR_MAG_MIP_POINT:((F_FILTER==5?MIN_LINEAR_MAG_POINT_MIP_LINEAR:((F_FILTER==6?MIN_MAG_LINEAR_MIP_POINT:((F_FILTER==7?MIN_MAG_MIP_LINEAR:((F_FILTER==8?ANISOTROPIC:((F_FILTER==9?COMPARISON_MIN_MAG_MIP_POINT:((F_FILTER==10?COMPARISON_MIN_MAG_POINT_MIP_LINEAR:((F_FILTER==11?COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT:((F_FILTER==12?COMPARISON_MIN_POINT_MAG_MIP_LINEAR:((F_FILTER==13?COMPARISON_MIN_LINEAR_MAG_MIP_POINT:((F_FILTER==14?COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR:((F_FILTER==15?COMPARISON_MIN_MAG_LINEAR_MIP_POINT:((F_FILTER==16?COMPARISON_MIN_MAG_MIP_LINEAR:((F_FILTER==17?COMPARISON_ANISOTROPIC:((F_FILTER==18?USER_CONFIG:((F_FILTER==19?ANISO:((F_FILTER==20?BILINEAR:((F_FILTER==21?TRILINEAR:((F_FILTER==22?POINT:(NEAREST)))))))))))))))))))))))))))))))))))))))))))))));
+    AddressU((F_ADDRESS_U==0?WRAP:((F_ADDRESS_U==1?MIRROR:((F_ADDRESS_U==2?CLAMP:((F_ADDRESS_U==3?BORDER:(MIRROR_ONCE))))))))); 
+    AddressV((F_ADDRESS_V==0?WRAP:((F_ADDRESS_V==1?MIRROR:((F_ADDRESS_V==2?CLAMP:((F_ADDRESS_V==3?BORDER:(MIRROR_ONCE))))))))); 
+    AddressW((F_ADDRESS_W==0?WRAP:((F_ADDRESS_W==1?MIRROR:((F_ADDRESS_W==2?CLAMP:((F_ADDRESS_W==3?BORDER:(MIRROR_ONCE))))))))); >;
+    ExposeTextureAttribute( g_MyTexture, true );
+
+    // Create our output
+    struct PS_OUTPUT
+    {
+        float4 vColor0 : SV_Target0; // Our output color
+    };
+
+    PS_OUTPUT MainPs( const PS_INPUT i )
+    {
+        PS_OUTPUT o;
+        o.vColor0 = Tex2D(g_MyTexture, i.vTexCoord.xy);
+        return o;
+    }
+}

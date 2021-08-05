@@ -92,6 +92,8 @@ PS_INPUT VS_SharedStandardProcessing(VS_INPUT i) {
     o.vPositionPs.xyz = vPositionWs.xyz;
     o.vPositionPs.w = i.nInstanceID;
 
+    o.vTexCoord = i.vTexCoord;
+
 
 
     return o;

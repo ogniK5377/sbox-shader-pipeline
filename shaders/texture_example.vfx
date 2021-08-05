@@ -70,9 +70,6 @@ PS
     CreateSampler2DWithRegister( g_MyTexture, 1 )< Filter(POINT); AddressU(BORDER); AddressV(BORDER); AddressW(BORDER); >;
     ExposeTextureAttribute( g_MyTexture, true );
 
-
-    CreateTexture2DInRegister(g_tSceneDepth, 2)< AsSceneDepth(true); >;
-
     // Create our output
     struct PS_OUTPUT
     {
@@ -83,7 +80,6 @@ PS
     {
         PS_OUTPUT o;
         o.vColor0 = Tex2D(g_MyTexture, i.vTexCoord.xy);
-        // o.vColor0 = float4(pow(Tex2D(g_tSceneDepth, i.vBaseUv.xy).xxx, 32.0), 1);
         return o;
     }
 }

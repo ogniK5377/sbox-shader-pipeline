@@ -38,8 +38,6 @@ COMMON
 struct VS_INPUT
 {
     #include "includes/re_vr_shared_standard_vs_input.fxc"
-
-    float4 vColor : COLOR0< Semantic(Color); >; // Fetch another input for our current vertex color!
 };
 
 struct PS_INPUT
@@ -85,8 +83,9 @@ VS
         }
 
         // Convert our color space accordingly
-        o.vVertexColor.rgb = SrgbGammaToLinear( i.vColor.rgb );
-        o.vVertexColor.a = 1.0;
+        float4 vColor = GetTintColor(i);
+        o.vVertexColor.rgb = SrgbGammaToLinear( vColor.rgb );
+        o.vVertexColor.a = vColor.a;
 
         // Finish up with our world to screen transformation
         return VS_CommonProcessing_Post(o);
@@ -114,7 +113,7 @@ PS
         float4 vColor0 : SV_Target0; // Our output color
     };
 
-    PS_OUTPUT MainPs( const PS_INPUT i )
+    PS_OUTPUT MainPs( PS_INPUT i )
     {
         PS_OUTPUT o;
         // If our bool is true, use the vertex color

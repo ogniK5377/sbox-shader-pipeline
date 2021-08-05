@@ -20,6 +20,12 @@ float4 Position3WsToPs(float3 pos) {
     return Position4WsToPs(float4(pos.xyz, 1.0f));
 }
 
+float4 Position3WsToPsMultiview(float3 pos, int viewIndex) {
+    float4 base = float4(pos.xyz, 1.0f);
+    float4 camOffset = g_vWorldToCameraOffsetMultiview[viewIndex] + base;
+    return mul(g_matWorldToProjectionMultiview[viewIndex], camOffset);
+}
+
 #define GetInstancedData \
 float4 instancedData[3]; \
 instancedData[0] = Tex2DOffset(g_tTransformTexture, i.vTransformTextureUV.xy, int2(0,0)); \
@@ -44,6 +50,12 @@ float4 ClipSpacePositionForLightBinner( float3 worldPosition, float4 projectedPo
     output.xyw = projectedPosition.xyw;
     output.z = d / (g_flNearPlane - g_flLightBinnerFarPlane);
     return output;
+}
+
+float4 GetTintColor(VS_INPUT i)
+{
+    float4 tintData = Tex2DOffset(g_tTransformTexture, i.vTransformTextureUV.xy, int2(3,0)).xyzw;
+    return tintData.rgba;
 }
 
 PS_INPUT VS_SharedStandardProcessing(VS_INPUT i) {
@@ -72,14 +84,16 @@ PS_INPUT VS_SharedStandardProcessing(VS_INPUT i) {
     DecompressNormal(vInputNormalOs.xyzw, vNormalOs.xyz);
     vNormalWs.xyz = normalize( mul( matObjectToWorld, float4( vNormalOs.xyz, 0.0 ) ) );
     o.vNormalWs = vNormalWs;
-    
+ 
     //----------------//
     // World position //
     //----------------//
     float3 vPositionWs = mul( matObjectToWorld, float4( vPositionOs.xyz * vAnimationScale.xyz, 1.0 ) );
     o.vPositionPs.xyz = vPositionWs.xyz;
+    o.vPositionPs.w = i.nInstanceID;
 
-    o.vTexCoord = i.vTexCoord;
+
+
     return o;
 }
 
@@ -88,6 +102,7 @@ PS_INPUT VS_CommonProcessing_Post(PS_INPUT o) {
     //--------------------//
     // Projected position //
     //--------------------//
+    
     o.vPositionPs.xyzw = Position3WsToPs( vPositionWs );
     o.vPositionWs = vPositionWs;
 

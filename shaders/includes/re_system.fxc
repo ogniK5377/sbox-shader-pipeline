@@ -50,6 +50,9 @@
 #define SamplerState( samplerState, samplerArg ) string SamplerState_##samplerState< string arg1 = #samplerArg; >
 #define Semantic( name ) string semantic = #name
 
+#define TessellationState( stateType, stateArg ) string TessellationState_##stateType< string value = #stateArg; >
+#define PatchSize( patchArg ) string TessellationState_PatchSize< string value = #patchArg; >
+
 #define Source( curArgument ) string source = #curArgument
 #define SourceArg( curArgument ) string attribute = #curArgument
 #define Attribute( curArgument) string attribute=curArgument

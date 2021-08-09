@@ -9,6 +9,9 @@ HEADER
 MODES
 {
     VrForward(); // The shading mode we'll use. Typically you'll keep this for forward rendering
+    ToolsVis();
+    ToolsWireframe( "vr_tools_wireframe.vfx" );
+    ToolsShadingComplexity( "vr_tools_shading_complexity.vfx" );
 }
 
 FEATURES
@@ -95,7 +98,8 @@ VS
 PS
 {
     // Define our pixel shader here
-
+    RenderState( FillMode, SOLID );
+    
     // Sets a render state
     RenderState( DepthEnable, F_ENABLE_DEPTH ? true : false ); // Use our feature to specify how to set the render state
     RenderState( DepthWriteEnable, F_ENABLE_DEPTH ? true : false );

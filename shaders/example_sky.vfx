@@ -1,0 +1,92 @@
+HEADER
+{
+    DevShader = true;
+    CompileTargets = ( IS_SM_50 && ( PC || VULKAN ) );
+    Description = "Example skybox shader";
+    Version = 1;
+}
+
+MODES
+{
+    VrForward();
+    ToolsVis();
+    ToolsWireframe( "vr_tools_wireframe.vfx" );
+    ToolsShadingComplexity( "vr_tools_shading_complexity.vfx" );
+}
+
+FEATURES
+{
+}
+
+COMMON 
+{
+    #include "includes/re_PerViewConstantBuffer.fxc"
+    #include "includes/re_system.fxc"
+    #include "includes/re_SunLightShaderParamsCB.fxc"
+}
+
+struct VS_INPUT
+{
+    #include "includes/re_vr_shared_standard_vs_input.fxc"
+};
+
+struct PS_INPUT
+{
+    #include "includes/re_vr_shared_standard_ps_input.fxc"
+};
+
+VS
+{
+    #include "includes/re_vr_shared_standard_vs_code.fxc"
+
+    PS_INPUT MainVs(VS_INPUT i)
+    {
+        PS_INPUT o = VS_SharedStandardProcessing( i );
+
+        float flSkyboxScale = g_flNearPlane + g_flFarPlane;
+        o.vPositionPs.xyz = i.vPositionOs * flSkyboxScale;
+
+        return VS_CommonProcessing_Post(o);
+    }
+}
+
+PS
+{
+    RenderState( CullMode, NONE );
+	RenderState( DepthWriteEnable, false );
+	RenderState( DepthEnable, true );
+	RenderState( DepthFunc, LESS_EQUAL );
+
+    struct PS_OUTPUT
+    {
+        float4 vColor0 : SV_Target0; // Our output color
+    };
+
+    struct Ray
+    {
+        float3 origin;
+        float3 direction;
+    };
+
+
+    Ray CreateRay(float3 origin, float3 direction)
+    {
+        Ray r;
+        r.origin = origin;
+        r.direction = normalize(direction);
+        return r;
+    }
+
+    PS_OUTPUT MainPs( const PS_INPUT i )
+    {
+        Ray ray = CreateRay(g_vCameraPositionWs, i.vPositionWs.xyz-g_vCameraPositionWs);
+
+        PS_OUTPUT o;
+        float3 color = float3(0,0,0);
+
+        color = ray.direction;
+
+        o.vColor0 = float4(color,1);
+        return o;
+    }
+}

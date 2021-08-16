@@ -53,6 +53,15 @@
 #define TessellationState( stateType, stateArg ) string TessellationState_##stateType< string value = #stateArg; >
 #define PatchSize( patchArg ) string TessellationState_PatchSize< string value = #patchArg; >
 
+#define TessDomain( arg ) [domain(#arg)]
+#define TessControlPointCount( arg ) [outputcontrolpoints(##arg)]
+#define TessTopology( arg ) [outputtopology(#arg)]
+#define TessPartitioning( arg ) [partitioning(#arg)]
+#define TessFunction( arg ) [patchconstantfunc(#arg)]
+#define GeoMaxVertexCount( arg ) [maxvertexcount(##arg)]
+
+#define Domain( arg ) [domain(#arg)]
+
 #define Source( curArgument ) string source = #curArgument
 #define SourceArg( curArgument ) string attribute = #curArgument
 #define Attribute( curArgument) string attribute=curArgument
@@ -158,7 +167,14 @@
 #define AsSceneDepth( emptyArg ) Attribute("SceneDepth")
 #define AsFramebuffer( emptyArg ) Attribute("FrameBufferCopyTexture")
 #define AsBlueNoise( emptyArg ) Attribute("BlueNoise")
-
+#define AsBRDFLookup( emptyArg ) Attribute("BRDFLookup")
+#define AsDynamicAmbientOcclusion( emptyArg ) Attribute("DynamicAmbientOcclusion")
+#define AsDynamicAmbientOcclusionDepth( emptyArg ) Attribute("DynamicAmbientOcclusionDepth")
+#define AsShadowDepthMapAtlas( emptyArg ) Attribute("ShadowDepthMapAtlas")
+#define AsVrShadowDepthBuffer( emptyArg ) Attribute("VrShadowDepthBuffer")
+#define AsPositionKeyFrames( emptyArg ) Attribute("$PositionKeyFrames")
+#define AsRotationKeyFrames( emptyArg ) Attribute("$RotationKeyFrames")
+#define AsSheetTexture( emptyArg ) Attribute("SheetTexture")
 
 #define TextureAttribute( baseName, value ) string g_texAttr_##baseName<string value = #value; >
 #define CreateTexture2DInRegister( texName, texReg ) \

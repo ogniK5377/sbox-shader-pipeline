@@ -150,6 +150,7 @@
 #define MaxAniso( arg ) string SamplerState_MaxAniso = ##arg
 #define MaxLOD( arg ) string SamplerState_MaxLOD = ##arg
 #define MinLOD( arg ) string SamplerState_MinLOD = ##arg
+#define SrgbRead( arg ) string _SrgbRead=#arg
 
 /*
     NEVER
@@ -181,6 +182,7 @@
     SamplerState texName##_s : register(s##texReg); \
     Texture2D<float4> ##texName: register(t##texReg)
 
+#define CreateTexture2DMS( texName ) Texture2DMS<float4> ##texName
 #define CreateTexture2DInRegisterWithoutSampler( texName, texReg ) Texture2D<float4> ##texName: register(t##texReg)
 #define CreateSampler2DWithRegister( texName, texReg )  SamplerState texName##_s : register(s##texReg)
 #define CreateSampler2D( texName ) SamplerState texName##_s
@@ -188,3 +190,4 @@
 #define Tex2DLevel( texName, texUvs, texLevel ) texName.SampleLevel(texName##_s, texUvs.xy, texLevel)
 #define Tex2DLevelOffset( texName, texUvs, texLevel, texOffset ) texName.SampleLevel(texName##_s, texUvs.xy, texLevel, texOffset)
 #define Tex2DOffset( texName, texUvs, texOffset ) texName.SampleLevel(texName##_s, texUvs.xy, 0, texOffset )
+#define Tex2DMS( texName, coord, sampleLocation ) texName.Load( (coord), (sampleLocation) )
